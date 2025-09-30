@@ -19,6 +19,7 @@
             --light-color: #f8f9fa;
             --dark-color: #343a40;
             --bg-color: #eef2f7;
+            --warning-color: #ffc107;
         }
 
         * {
@@ -423,6 +424,8 @@
             font-size: 1rem;
             color: var(--secondary-color);
             margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
         }
 
         .stat-item {
@@ -445,6 +448,7 @@
             border-radius: 10px;
             margin-bottom: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+            cursor: pointer;
         }
         .patient-avatar {
             width: 50px;
@@ -458,13 +462,45 @@
             font-size: 1.5rem;
             font-weight: 600;
             margin-right: 15px;
+            flex-shrink: 0;
         }
+        .patient-info { flex-grow: 1; }
         .patient-info p { margin: 0; line-height: 1.4; }
         .patient-info .name { font-weight: 600; }
         .patient-info .details { font-size: 0.9rem; color: var(--secondary-color); }
         
         .qr-code { margin-left: auto; color: var(--dark-color); }
+        
+        /* Patient Detail Screen */
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1rem;
+            padding: 12px 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-item span:first-child { color: var(--secondary-color); }
+        .detail-item span:last-child { font-weight: 500; color: var(--dark-color); }
 
+        .vaccine-list { list-style: none; padding: 0; }
+        .vaccine-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .vaccine-item:last-child { border-bottom: none; }
+        .vaccine-item .vaccine-name { font-weight: 500; }
+        .vaccine-item .vaccine-date { font-size: 0.9em; color: var(--secondary-color); }
+        .vaccine-status {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .vaccine-status.done { background-color: #d4edda; color: #155724; }
+        .vaccine-status.due { background-color: #fff3cd; color: #856404; }
 
     </style>
 </head>
@@ -549,6 +585,30 @@
                 <div class="nav-item" onclick="showScreen('login-screen')"><i class="fas fa-sign-out-alt"></i>Logout</div>
             </div>
         </div>
+        
+        <div class="screen" id="patient-detail-screen">
+            <div class="header">
+                <i class="fas fa-arrow-left back-arrow" onclick="showScreen('patient-list-screen')"></i>
+                <h2 id="detail-patient-name">Patient Details</h2>
+            </div>
+            <div class="main-content">
+                <div class="report-card">
+                    <h3>Patient Information</h3>
+                    <div id="patient-basic-details">
+                        </div>
+                </div>
+                <div class="report-card">
+                    <h3>Vaccination Status</h3>
+                    <ul class="vaccine-list" id="vaccine-list-container">
+                        </ul>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item active" onclick="showScreen('asha-dashboard-screen')"><i class="fas fa-home"></i>Dashboard</div>
+                <div class="nav-item" onclick="showScreen('sync-screen')"><i class="fas fa-sync-alt"></i>Sync Data</div>
+                <div class="nav-item" onclick="showScreen('login-screen')"><i class="fas fa-sign-out-alt"></i>Logout</div>
+            </div>
+        </div>
 
         <div class="screen" id="patient-entry-screen">
             <div class="header">
@@ -562,7 +622,7 @@
                         <div class="voice-input-group">
                              <input type="text" id="name" required>
                              <button type="button" class="voice-btn" onclick="startVoiceRecognition('name')">
-                                <i class="fas fa-microphone"></i>
+                                 <i class="fas fa-microphone"></i>
                              </button>
                         </div>
                     </div>
@@ -602,8 +662,8 @@
                         <div class="voice-input-group">
                             <textarea id="symptoms" rows="3"></textarea>
                              <button type="button" class="voice-btn" onclick="startVoiceRecognition('symptoms')">
-                                <i class="fas fa-microphone"></i>
-                            </button>
+                                 <i class="fas fa-microphone"></i>
+                             </button>
                         </div>
                     </div>
                 </form>
@@ -665,15 +725,60 @@
     <script>
         // JAVASCRIPT LOGIC
         
+        // --- MOCK DATA WITH DETAILED VACCINATION INFO ---
         const mockPatients = [
-            { id: 1, name: 'Sunita Devi', age: 28, gender: 'Female', details: 'ANC Patient, 7th Month', type: 'anc' },
-            { id: 2, name: 'Rahul Kumar', age: 2, gender: 'Male', details: 'Polio Vaccine Due', type: 'vaccine' },
-            { id: 3, name: 'Geeta Singh', age: 32, gender: 'Female', details: 'High-risk Pregnancy', type: 'anc' },
-            { id: 4, name: 'Aarav Sharma', age: 1, gender: 'Male', details: 'BCG Vaccine Done', type: 'vaccine' },
-            { id: 5, name: 'Ramesh Lal', age: 65, gender: 'Male', details: 'BP checkup required', type: 'visits' },
+             { 
+                id: 1, name: 'Sunita Devi', age: 28, gender: 'Female', 
+                details: 'ANC Patient, 7th Month', type: 'anc', 
+                pregnancyMonth: 7,
+                vaccinations: [
+                    { name: 'TT-1', status: 'Done', date: '2025-07-15' },
+                    { name: 'TT-2', status: 'Done', date: '2025-08-15' },
+                    { name: 'Iron Folic Acid', status: 'Done', date: 'Ongoing' },
+                    { name: 'TT-Booster', status: 'Due', date: '2026-01-20' }
+                ]
+            },
+            { 
+                id: 2, name: 'Rahul Kumar', age: 2, gender: 'Male', 
+                details: 'Polio Vaccine Due', type: 'vaccine',
+                vaccinations: [
+                    { name: 'BCG', status: 'Done', date: '2023-10-01' },
+                    { name: 'Hepatitis B - 0', status: 'Done', date: '2023-10-01' },
+                    { name: 'Polio - 1', status: 'Done', date: '2023-11-15' },
+                    { name: 'Penta - 1', status: 'Done', date: '2023-11-15' },
+                    { name: 'Polio - 2', status: 'Due', date: '2025-10-05' },
+                    { name: 'Penta - 2', status: 'Due', date: '2025-10-05' }
+                ]
+            },
+            { 
+                id: 3, name: 'Geeta Singh', age: 32, gender: 'Female', 
+                details: 'High-risk Pregnancy', type: 'anc',
+                pregnancyMonth: 5,
+                 vaccinations: [
+                    { name: 'TT-1', status: 'Done', date: '2025-09-01' },
+                    { name: 'TT-2', status: 'Due', date: '2025-10-01' }
+                ]
+            },
+            { 
+                id: 4, name: 'Aarav Sharma', age: 1, gender: 'Male', 
+                details: 'BCG Vaccine Done', type: 'vaccine',
+                vaccinations: [
+                    { name: 'BCG', status: 'Done', date: '2024-10-20' },
+                    { name: 'Polio - 0', status: 'Done', date: '2024-10-20' },
+                    { name: 'Measles-Rubella', status: 'Due', date: '2025-11-15' }
+                ]
+            },
+            { 
+                id: 5, name: 'Ramesh Lal', age: 65, gender: 'Male', 
+                details: 'BP checkup required', type: 'visits',
+                vaccinations: [
+                     { name: 'No vaccination schedule', status: 'N/A', date: '' }
+                ]
+            },
         ];
         
         let currentScreen = 'login-screen';
+        let isSyncing = false; // Flag to prevent multiple syncs at once
         
         const translations = {
             en: { loginTitle: "ASHA Sahayika", loginSubtitle: "Health Service, At Your Doorstep", loginButton: "Login" },
@@ -691,7 +796,7 @@
                     newScreen.classList.add('active');
                     oldScreen.classList.remove('slide-out');
                     currentScreen = screenId;
-                    if(screenId === 'sync-screen') updateSyncStatus();
+                    if(screenId === 'sync-screen') updateSyncStatusUI();
                 }, 300);
             }
         }
@@ -715,9 +820,12 @@
         function updateOnlineStatus() {
             const statusDot = document.getElementById('status-dot');
             const statusText = document.getElementById('status-text');
+            
             if (navigator.onLine) {
                 statusDot.className = 'status-dot online';
                 statusText.textContent = 'Online';
+                // --- NEW: Trigger automatic sync when connection is restored ---
+                autoSyncData(); 
             } else {
                 statusDot.className = 'status-dot offline';
                 statusText.textContent = 'Offline';
@@ -746,7 +854,7 @@
             }
 
             const inputField = document.getElementById(inputId);
-            const voiceButton = inputField.nextElementSibling;
+            const voiceButton = inputField.closest('.voice-input-group').querySelector('.voice-btn');
 
             recognition.onstart = () => {
                 voiceButton.classList.add('listening');
@@ -789,7 +897,8 @@
                 aadhaar: document.getElementById('aadhaar').value,
                 phone: document.getElementById('phone').value,
                 details: document.getElementById('symptoms').value,
-                type: 'new'
+                type: 'new',
+                vaccinations: [] // New offline patients have no vaccine history yet
             };
 
             if (!patient.name || !patient.age || !patient.gender || !patient.aadhaar) {
@@ -806,7 +915,7 @@
             showScreen('asha-dashboard-screen');
         }
         
-        function updateSyncStatus() {
+        function updateSyncStatusUI() {
             const offlinePatients = getOfflinePatients();
             const statusText = document.getElementById('sync-status-text');
             const syncButton = document.getElementById('sync-button');
@@ -814,6 +923,32 @@
             statusText.textContent = `You have ${offlinePatients.length} records to sync.`;
             syncButton.disabled = offlinePatients.length === 0 || !navigator.onLine;
             if(!navigator.onLine) statusText.textContent += " (Please connect to internet)";
+        }
+        
+        // --- NEW: AUTOMATIC BACKGROUND SYNC ---
+        function autoSyncData() {
+            const offlinePatients = getOfflinePatients();
+            if (isSyncing || !navigator.onLine || offlinePatients.length === 0) {
+                return; // Don't sync if already syncing, offline, or no data
+            }
+            
+            isSyncing = true;
+            const statusText = document.getElementById('status-text');
+            const originalStatus = statusText.textContent;
+            statusText.textContent = "Syncing...";
+
+            // Simulate network delay for sync
+            setTimeout(() => {
+                localStorage.removeItem('offlinePatients'); // Clear the data
+                statusText.textContent = originalStatus; // Restore status text
+                isSyncing = false;
+                console.log("Automatic background sync completed.");
+                // Optionally, update the UI on the sync page if it's currently open
+                if(currentScreen === 'sync-screen') {
+                    updateSyncStatusUI();
+                     document.getElementById('sync-icon').className = 'fas fa-check-circle sync-icon synced';
+                }
+            }, 3000); // 3-second sync simulation
         }
 
         function startSync() {
@@ -831,6 +966,7 @@
             statusText.textContent = `Syncing ${offlinePatients.length} records...`;
             progressBar.style.display = 'block';
             progress.style.width = '0%';
+            isSyncing = true;
 
             let currentProgress = 0;
             const interval = setInterval(() => {
@@ -843,6 +979,7 @@
                         statusText.textContent = `✔ ${offlinePatients.length} Records Synced Successfully!`;
                         localStorage.removeItem('offlinePatients');
                         progressBar.style.display = 'none';
+                        isSyncing = false;
                     }, 500);
                 }
             }, 400);
@@ -866,13 +1003,15 @@
             
             if (filteredPatients.length === 0) {
                  container.innerHTML = '<p style="text-align:center;color:grey;">No patients found in this category.</p>';
+                 showScreen('patient-list-screen');
+                 return;
             }
 
             filteredPatients.forEach(patient => {
                 const initial = patient.name.charAt(0).toUpperCase();
                 const genderInitial = patient.gender ? `(${patient.gender.charAt(0)})` : '';
                 const cardHTML = `
-                    <li class="patient-card">
+                    <li class="patient-card" onclick="showPatientDetails(${patient.id})">
                         <div class="patient-avatar">${initial}</div>
                         <div class="patient-info">
                             <p class="name">${patient.name} (${patient.age} ${genderInitial})</p>
@@ -886,6 +1025,56 @@
                 container.innerHTML += cardHTML;
             });
             showScreen('patient-list-screen');
+        }
+        
+        // --- NEW: SHOW DETAILED PATIENT VIEW ---
+        function showPatientDetails(patientId) {
+            const allPatients = [...mockPatients, ...getOfflinePatients()];
+            const patient = allPatients.find(p => p.id === patientId);
+
+            if (!patient) return;
+
+            // Populate header
+            document.getElementById('detail-patient-name').textContent = patient.name;
+            
+            // Populate basic info card
+            const basicDetailsContainer = document.getElementById('patient-basic-details');
+            let detailsHTML = `
+                <div class="detail-item"><span>Age</span><span>${patient.age}</span></div>
+                <div class="detail-item"><span>Gender</span><span>${patient.gender}</span></div>
+            `;
+            // Add pregnancy month only for ANC patients
+            if (patient.type === 'anc' && patient.pregnancyMonth) {
+                detailsHTML += `<div class="detail-item"><span>Pregnancy</span><span>${patient.pregnancyMonth} months</span></div>`;
+            }
+            if (patient.phone) {
+                 detailsHTML += `<div class="detail-item"><span>Phone</span><span>${patient.phone}</span></div>`;
+            }
+            basicDetailsContainer.innerHTML = detailsHTML;
+            
+            // Populate vaccine list
+            const vaccineContainer = document.getElementById('vaccine-list-container');
+            vaccineContainer.innerHTML = ''; // Clear previous list
+            
+            if (patient.vaccinations && patient.vaccinations.length > 0) {
+                 patient.vaccinations.forEach(vax => {
+                    const statusClass = vax.status.toLowerCase();
+                    const vaxItemHTML = `
+                        <li class="vaccine-item">
+                            <div>
+                                <p class="vaccine-name">${vax.name}</p>
+                                <p class="vaccine-date">${vax.date}</p>
+                            </div>
+                            <span class="vaccine-status ${statusClass}">${vax.status}</span>
+                        </li>
+                    `;
+                     vaccineContainer.innerHTML += vaxItemHTML;
+                });
+            } else {
+                vaccineContainer.innerHTML = '<p style="text-align:center;color:grey;padding:10px;">No vaccination data available.</p>';
+            }
+            
+            showScreen('patient-detail-screen');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
