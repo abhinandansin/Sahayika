@@ -3,1085 +3,559 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASHA Sahayika Prototype</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>Startup Forge 1.0 | Ignite the Founder in You</title>
 
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        /* CSS STYLES */
         :root {
-            --primary-color: #007bff;
-            --secondary-color: #6c757d;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --light-color: #f8f9fa;
-            --dark-color: #343a40;
-            --bg-color: #eef2f7;
-            --warning-color: #ffc107;
+            --primary: #ff8c00;
+            --secondary: #ffd700;
+            --accent: #00d4ff;
+            --bg-dark: #0a0a0c;
+            --glass: rgba(255, 255, 255, 0.05);
+            --text-muted: rgba(255,255,255,0.7);
+            --surface: rgba(255,255,255,0.02);
+            --text-color: #ffffff;
+        }
+        [data-theme="light"] {
+            --bg-dark: #f7f7fb;
+            --text-color: #0a0a0c;
+            --glass: rgba(0, 0, 0, 0.06);
+            --surface: rgba(0,0,0,0.03);
+            --text-muted: rgba(10,10,12,0.7);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: var(--bg-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-color);
+            overflow-x: hidden;
+            padding-bottom: 160px;
+        }
+        html { scroll-behavior: smooth; }
+
+        .container {
+            width: min(1100px, 90%);
+            margin: 0 auto;
         }
 
-        .mobile-container {
-            width: 100%;
-            max-width: 400px;
-            height: 800px;
-            background-color: white;
-            border-radius: 30px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-            position: relative;
-        }
-
-        .screen {
-            position: absolute;
+        .nav {
+            position: sticky;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: none;
-            flex-direction: column;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-            transform: translateX(100%);
+            z-index: 50;
+            backdrop-filter: blur(10px);
+            background: rgba(10,10,12,0.6);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
         }
 
-        .screen.active {
+        .nav-inner {
             display: flex;
-            opacity: 1;
-            transform: translateX(0);
-        }
-        
-        .screen.slide-out {
-            transform: translateX(-100%);
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
         }
 
-        /* --- Login Screen --- */
-        #login-screen {
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-img {
+            height: 48px;
+            width: auto;
+            border-radius: 8px;
+            filter: drop-shadow(0 0 6px rgba(255,140,0,0.3));
+        }
+        .brand-icons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .brand-icon {
+            height: 24px;
+            width: auto;
+            border-radius: 6px;
+            opacity: 0.8;
+            transition: 0.2s;
+        }
+        .logo-group .brand-icon:hover {
+            opacity: 1;
+            transform: scale(1.03);
+        }
+        @media (max-width: 768px) {
+            .brand-icons { display: none; }
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 10px;
+        }
+
+        .nav-links a:hover {
+            background: var(--glass);
+        }
+        .theme-toggle {
+            border: 1px solid rgba(255,255,255,0.12);
+            background: var(--glass);
+            color: var(--text-color);
+            height: 32px;
+            padding: 0 10px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .bg-glow {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                radial-gradient(circle at 10% 20%, rgba(255, 140, 0, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 40%);
+            z-index: -1;
+        }
+
+        .ticker-bar {
+            background: linear-gradient(90deg, var(--primary), #ff4500);
+            color: #000;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(0,0,0,0.2);
+        }
+
+        .ticker {
+            white-space: nowrap;
+            display: flex;
+            gap: 60px;
+            animation: ticker 18s linear infinite;
+            padding: 10px 0;
+        }
+        .ticker:hover { animation-play-state: paused; }
+
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        header {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 30px;
-            background: linear-gradient(135deg, var(--primary-color), #0056b3);
-            color: white;
-        }
-
-        .login-box {
-            width: 100%;
             text-align: center;
-        }
-        
-        .login-box img {
-            width: 80px;
-            margin-bottom: 20px;
+            padding: 20px;
         }
 
-        .login-box h1 {
-            font-weight: 600;
-            margin-bottom: 10px;
+        .hero-logo {
+            width: clamp(220px, 28vw, 340px);
+            filter: drop-shadow(0 0 20px var(--primary));
+            animation: float 4s ease-in-out infinite;
         }
 
-        .login-box p {
-            margin-bottom: 30px;
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            margin-top: 20px;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
             opacity: 0.8;
+            color: var(--text-muted);
+            margin-top: 8px;
         }
 
-        .input-group {
-            position: relative;
-            margin-bottom: 20px;
+        .section-title {
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            margin: 60px 0 40px;
+            color: var(--secondary);
         }
 
-        .input-group i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--primary-color);
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 15px 15px 15px 45px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            background: rgba(255, 255, 255, 0.9);
-        }
-        
-        .btn {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background-color: var(--success-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #218838;
-            transform: translateY(-2px);
-        }
-        
-        .language-selector {
-            margin-top: 30px;
-        }
-        
-        .language-selector button {
-            background: none;
-            border: 1px solid white;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            margin: 0 5px;
-            cursor: pointer;
-        }
-        
-        .language-selector button.active {
-            background: white;
-            color: var(--primary-color);
-        }
-
-
-        /* --- Header --- */
-        .header {
-            padding: 20px;
-            background: var(--primary-color);
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-shrink: 0;
-        }
-        .header .back-arrow {
-            cursor: pointer;
-            font-size: 1.2rem;
-            margin-right: 15px;
-        }
-
-        .header h2 {
-            font-size: 1.2rem;
-            font-weight: 500;
-            flex-grow: 1;
-        }
-
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            font-size: 0.8rem;
-        }
-        
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 5px;
-            animation: pulse 2s infinite;
-        }
-
-        .status-dot.online { background-color: #28a745; }
-        .status-dot.offline { background-color: #dc3545; }
-
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
-        }
-        
-        .status-dot.offline { animation: none; }
-
-
-        /* --- Main Content Area --- */
-        .main-content {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        /* --- Dashboard --- */
-        .dashboard-grid {
+        .rounds-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
         }
 
         .card {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 20px;
+            transition: 0.4s;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08),
+                        0 8px 24px rgba(255,140,0,0.06);
         }
 
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(255, 140, 0, 0.2);
         }
 
-        .card i {
-            font-size: 2rem;
-            color: var(--primary-color);
-            margin-bottom: 10px;
-        }
-
-        .card p {
-            font-weight: 500;
-            color: var(--dark-color);
-        }
-        
-        .reminders {
-            margin-top: 20px;
-            background-color: #fff3cd;
-            color: #856404;
-            padding: 15px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-        }
-
-        .reminders i { margin-right: 10px; }
-
-        /* --- Bottom Nav --- */
-        .bottom-nav {
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            border-top: 1px solid #ddd;
-            background: white;
-            flex-shrink: 0;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--secondary-color);
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .nav-item i { font-size: 1.5rem; margin-bottom: 4px; }
-        .nav-item.active { color: var(--primary-color); }
-        
-        /* Floating Action Button */
-        .fab {
-            position: absolute;
-            bottom: 80px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            background-color: var(--success-color);
-            color: white;
-            border-radius: 50%;
-            border: none;
-            font-size: 2rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-        .fab:hover { transform: scale(1.1) rotate(90deg); }
-
-        /* --- Patient Entry Screen --- */
-        #patient-entry-screen .main-content {
-             padding-bottom: 80px; /* Space for save button */
-        }
-
-        .form-group {
+        .card h3 {
+            color: var(--primary);
             margin-bottom: 15px;
+            font-family: 'Orbitron';
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: var(--secondary-color);
-        }
-        
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 1rem;
-            background-color: white;
-        }
-
-        .voice-input-group {
-            position: relative;
-        }
-        
-        /* Make room for the mic button inside the input field */
-        .voice-input-group input, .voice-input-group textarea {
-            padding-right: 40px;
-        }
-
-        .voice-btn {
-            position: absolute;
-            right: 1px;
-            top: 1px;
-            bottom: 1px;
-            width: 38px;
-            background: none;
-            border: none;
-            font-size: 1.4rem;
-            color: var(--primary-color);
-            cursor: pointer;
-            border-radius: 0 8px 8px 0;
-        }
-        .voice-btn:hover {
-            background-color: #f0f0f0;
-        }
-        .voice-btn.listening {
-            color: var(--danger-color);
-            animation: pulse-red 1s infinite;
-        }
-
-        @keyframes pulse-red {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        
-        .save-offline-btn {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 360px;
-            padding: 15px;
-        }
-
-        /* --- Sync Status Screen --- */
-        #sync-screen .main-content {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+        .sponsor-container {
+            margin: 40px 0;
+            background: var(--surface);
+            padding: 24px;
+            border-radius: 20px;
             text-align: center;
         }
-        
-        .sync-icon { font-size: 5rem; color: var(--secondary-color); }
-        .sync-icon.syncing { color: var(--primary-color); animation: spin 2s linear infinite; }
-        .sync-icon.synced { color: var(--success-color); animation: none; }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        #sync-status-text { margin: 20px 0; font-size: 1.2rem; }
-        #sync-progress-bar {
-            width: 80%;
-            height: 10px;
-            background-color: #e0e0e0;
-            border-radius: 5px;
-            overflow: hidden;
-            display: none;
-        }
-        #sync-progress {
-            width: 0%;
-            height: 100%;
-            background-color: var(--success-color);
-            transition: width 0.5s ease;
-        }
-        
-        /* PHC Dashboard */
-        .report-card {
-            background-color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        }
-
-        .report-card h3 {
-            font-size: 1rem;
-            color: var(--secondary-color);
-            margin-bottom: 10px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        .stat-item {
+        .sponsor-grid {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 14px;
         }
-        .stat-item:last-child { border-bottom: none; }
-        .stat-value { font-size: 1.5rem; font-weight: 600; color: var(--primary-color); }
-        
-        /* Patient List Screen */
-        .patient-list { list-style: none; }
-        .patient-card {
+
+        .sponsor-box {
+            width: 150px;
+            height: 90px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
             display: flex;
             align-items: center;
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+            justify-content: center;
+            border: 1px dashed rgba(255,255,255,0.2);
+            transition: 0.3s;
             cursor: pointer;
         }
-        .patient-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-right: 15px;
-            flex-shrink: 0;
-        }
-        .patient-info { flex-grow: 1; }
-        .patient-info p { margin: 0; line-height: 1.4; }
-        .patient-info .name { font-weight: 600; }
-        .patient-info .details { font-size: 0.9rem; color: var(--secondary-color); }
-        
-        .qr-code { margin-left: auto; color: var(--dark-color); }
-        
-        /* Patient Detail Screen */
-        .detail-item {
-            display: flex;
-            justify-content: space-between;
-            font-size: 1rem;
-            padding: 12px 5px;
-            border-bottom: 1px solid #eee;
-        }
-        .detail-item span:first-child { color: var(--secondary-color); }
-        .detail-item span:last-child { font-weight: 500; color: var(--dark-color); }
 
-        .vaccine-list { list-style: none; padding: 0; }
-        .vaccine-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 5px;
-            border-bottom: 1px solid #eee;
+        .sponsor-box:hover {
+            background: rgba(255,255,255,0.15);
+            border-style: solid;
         }
-        .vaccine-item:last-child { border-bottom: none; }
-        .vaccine-item .vaccine-name { font-weight: 500; }
-        .vaccine-item .vaccine-date { font-size: 0.9em; color: var(--secondary-color); }
-        .vaccine-status {
-            padding: 4px 10px;
-            border-radius: 12px;
+
+        .sponsor-logo {
+            max-width: 120px;
+            max-height: 60px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            filter: grayscale(10%);
+            transition: 0.3s;
+        }
+
+        .sponsor-container .section-title {
+            margin: 0 0 12px;
+        }
+
+        .sponsor-box:hover .sponsor-logo {
+            filter: none;
+            transform: scale(1.04);
+        }
+        .form-wrapper {
+            text-align: center;
+            margin: 60px 0;
+        }
+
+        .form-wrapper img {
+            width: 320px;
+            border-radius: 25px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .form-wrapper img:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 30px var(--primary);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .btn-register {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            color: #000;
+            font-weight: bold;
+            font-family: 'Orbitron';
+            margin-top: 30px;
+            display: inline-block;
+            transition: 0.3s;
+        }
+
+        .btn-register:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        .btn-register:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-inner { padding: 0 8px; }
+            .rounds-grid { gap: 20px; }
+            .card { padding: 28px; }
+            header { min-height: 70vh; }
+        }
+
+        footer {
+            text-align: center;
+            padding: 50px;
+            opacity: 0.5;
             font-size: 0.8rem;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        [data-theme="light"] footer { border-top-color: rgba(0,0,0,0.08); }
+        .section-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.08);
+            margin: 30px 0;
+        }
+        [data-theme="light"] .section-divider { background: rgba(0,0,0,0.08); }
+
+        .notice-bar {
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%) translateY(120%);
+            width: min(1100px, 92%);
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 60;
+            transition: transform .4s ease;
+        }
+
+        .notice-bar.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .notice-text {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .notice-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notice-link {
+            color: var(--accent);
+            text-decoration: none;
             font-weight: 600;
         }
-        .vaccine-status.done { background-color: #d4edda; color: #155724; }
-        .vaccine-status.due { background-color: #fff3cd; color: #856404; }
 
+        .notice-link:hover {
+            text-decoration: underline;
+        }
+
+        .notice-close {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 10px;
+            background: var(--glass);
+            color: var(--text-color);
+            font-size: 18px;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .notice-close:hover {
+            background: rgba(255,255,255,0.14);
+        }
+
+        .notice-bar-alt {
+            bottom: 80px;
+            background: linear-gradient(90deg, var(--primary), #ff4500);
+            border-color: rgba(0,0,0,0.2);
+            color: #000;
+        }
     </style>
 </head>
+
 <body>
 
-    <div class="mobile-container">
+<div class="bg-glow"></div>
 
-        <div class="screen active" id="login-screen">
-            <div class="login-box">
-                <img src="https://img.icons8.com/plasticine/100/null/medical-doctor.png" alt="Logo"/>
-                <h1 id="login-title">ASHA Sahayika</h1>
-                <p id="login-subtitle">Swasthya Seva, Aapke Dwaar</p>
-                <div class="input-group">
-                    <i class="fas fa-user"></i>
-                    <input type="text" id="login-id" placeholder="ASHA/PHC ID">
-                </div>
-                <div class="input-group">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="login-password" placeholder="Password">
-                </div>
-                <button class="btn btn-primary" id="login-button" onclick="handleLogin()">Login</button>
-                <div class="language-selector">
-                    <button class="active" onclick="changeLanguage('en', this)">English</button>
-                    <button onclick="changeLanguage('hi', this)">हिन्दी</button>
-                </div>
+<nav class="nav">
+    <div class="container nav-inner">
+        <div class="logo-group">
+            <div class="brand-icons">
+                <img src="2.jpeg" alt="Logo 2" class="brand-icon">
+                <img src="3.jpeg" alt="Logo 3" class="brand-icon">
+            </div>
+            <img src="1.jpeg" alt="Startup Forge Logo" class="logo-img">
+            <span class="logo">STARTUP FORGE</span>
+            <div class="brand-icons">
+                <img src="4.jpeg" alt="Logo 4" class="brand-icon">
+                <img src="5.jpeg" alt="Logo 5" class="brand-icon">
             </div>
         </div>
-
-        <div class="screen" id="asha-dashboard-screen">
-            <div class="header">
-                <h2>Dashboard</h2>
-                <div class="status-indicator">
-                    <div class="status-dot" id="status-dot"></div>
-                    <span id="status-text"></span>
-                </div>
-            </div>
-            <div class="main-content">
-                <div class="reminders">
-                    <i class="fas fa-bell"></i>
-                    <span id="reminder-text">3 Vaccinations due today</span>
-                </div>
-                <br>
-                <div class="dashboard-grid">
-                    <div class="card" onclick="showPatientList('anc')">
-                        <i class="fas fa-female"></i>
-                        <p>ANC Patients</p>
-                    </div>
-                    <div class="card" onclick="showPatientList('vaccine')">
-                        <i class="fas fa-syringe"></i>
-                        <p>Vaccination</p>
-                    </div>
-                    <div class="card" onclick="showPatientList('visits')">
-                        <i class="fas fa-house-medical"></i>
-                        <p>Household Visits</p>
-                    </div>
-                    <div class="card" onclick="showPatientList('all')">
-                        <i class="fas fa-notes-medical"></i>
-                        <p>All Patients</p>
-                    </div>
-                </div>
-            </div>
-            <button class="fab" onclick="showScreen('patient-entry-screen')">+</button>
-            <div class="bottom-nav">
-                <div class="nav-item active" onclick="showScreen('asha-dashboard-screen')"><i class="fas fa-home"></i>Dashboard</div>
-                <div class="nav-item" onclick="showScreen('sync-screen')"><i class="fas fa-sync-alt"></i>Sync Data</div>
-                <div class="nav-item" onclick="showScreen('login-screen')"><i class="fas fa-sign-out-alt"></i>Logout</div>
-            </div>
-        </div>
-        
-        <div class="screen" id="patient-list-screen">
-            <div class="header">
-                 <i class="fas fa-arrow-left back-arrow" onclick="showScreen('asha-dashboard-screen')"></i>
-                <h2 id="patient-list-title">Patients</h2>
-            </div>
-            <div class="main-content">
-                <ul class="patient-list" id="patient-list-container">
-                    </ul>
-            </div>
-            <div class="bottom-nav">
-                <div class="nav-item active" onclick="showScreen('asha-dashboard-screen')"><i class="fas fa-home"></i>Dashboard</div>
-                <div class="nav-item" onclick="showScreen('sync-screen')"><i class="fas fa-sync-alt"></i>Sync Data</div>
-                <div class="nav-item" onclick="showScreen('login-screen')"><i class="fas fa-sign-out-alt"></i>Logout</div>
-            </div>
-        </div>
-        
-        <div class="screen" id="patient-detail-screen">
-            <div class="header">
-                <i class="fas fa-arrow-left back-arrow" onclick="showScreen('patient-list-screen')"></i>
-                <h2 id="detail-patient-name">Patient Details</h2>
-            </div>
-            <div class="main-content">
-                <div class="report-card">
-                    <h3>Patient Information</h3>
-                    <div id="patient-basic-details">
-                        </div>
-                </div>
-                <div class="report-card">
-                    <h3>Vaccination Status</h3>
-                    <ul class="vaccine-list" id="vaccine-list-container">
-                        </ul>
-                </div>
-            </div>
-            <div class="bottom-nav">
-                <div class="nav-item active" onclick="showScreen('asha-dashboard-screen')"><i class="fas fa-home"></i>Dashboard</div>
-                <div class="nav-item" onclick="showScreen('sync-screen')"><i class="fas fa-sync-alt"></i>Sync Data</div>
-                <div class="nav-item" onclick="showScreen('login-screen')"><i class="fas fa-sign-out-alt"></i>Logout</div>
-            </div>
-        </div>
-
-        <div class="screen" id="patient-entry-screen">
-            <div class="header">
-                <i class="fas fa-arrow-left back-arrow" onclick="showScreen('asha-dashboard-screen')"></i>
-                <h2>New Patient Entry</h2>
-            </div>
-            <div class="main-content">
-                <form id="patient-form">
-                    <div class="form-group">
-                        <label for="name">Name</label>
-                        <div class="voice-input-group">
-                             <input type="text" id="name" required>
-                             <button type="button" class="voice-btn" onclick="startVoiceRecognition('name')">
-                                 <i class="fas fa-microphone"></i>
-                             </button>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="age">Age</label>
-                        <input type="number" id="age" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="gender">Gender</label>
-                        <select id="gender" required>
-                            <option value="">-- Select Gender --</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="aadhaar">Aadhaar Number</label>
-                         <div class="voice-input-group">
-                            <input type="text" inputmode="numeric" id="aadhaar" placeholder="12-digit number" maxlength="12" required>
-                            <button type="button" class="voice-btn" onclick="startVoiceRecognition('aadhaar')">
-                                <i class="fas fa-microphone"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <div class="voice-input-group">
-                            <input type="tel" id="phone" placeholder="10-digit mobile number" maxlength="10">
-                            <button type="button" class="voice-btn" onclick="startVoiceRecognition('phone')">
-                                <i class="fas fa-microphone"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="symptoms">Symptoms / Dikat (क्या दिक्कत है)</label>
-                        <div class="voice-input-group">
-                            <textarea id="symptoms" rows="3"></textarea>
-                             <button type="button" class="voice-btn" onclick="startVoiceRecognition('symptoms')">
-                                 <i class="fas fa-microphone"></i>
-                             </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <button class="btn btn-primary save-offline-btn" onclick="savePatientOffline()">
-                <i class="fas fa-save"></i> Save Offline
-            </button>
-        </div>
-
-        <div class="screen" id="sync-screen">
-            <div class="header">
-                 <h2 id="sync-title">Sync Status</h2>
-            </div>
-            <div class="main-content">
-                <i id="sync-icon" class="fas fa-cloud-upload-alt sync-icon"></i>
-                <p id="sync-status-text">You have 0 records to sync.</p>
-                <div id="sync-progress-bar">
-                    <div id="sync-progress"></div>
-                </div>
-                <br>
-                <button class="btn btn-primary" id="sync-button" onclick="startSync()">Sync Now</button>
-            </div>
-            <div class="bottom-nav">
-                <div class="nav-item" onclick="showScreen('asha-dashboard-screen')"><i class="fas fa-home"></i>Dashboard</div>
-                <div class="nav-item active" onclick="showScreen('sync-screen')"><i class="fas fa-sync-alt"></i>Sync Data</div>
-                <div class="nav-item" onclick="showScreen('login-screen')"><i class="fas fa-sign-out-alt"></i>Logout</div>
-            </div>
-        </div>
-
-        <div class="screen" id="phc-dashboard-screen">
-             <div class="header">
-                <h2>PHC Dashboard</h2>
-             </div>
-             <div class="main-content">
-                <div class="report-card">
-                    <h3>Overall Health Summary</h3>
-                    <div class="stat-item">
-                        <span><i class="fas fa-female"></i> Total ANC Patients</span>
-                        <span class="stat-value">84</span>
-                    </div>
-                    <div class="stat-item">
-                        <span><i class="fas fa-syringe"></i> Vaccinations This Month</span>
-                        <span class="stat-value">126</span>
-                    </div>
-                    <div class="stat-item">
-                        <span><i class="fas fa-hospital"></i> Referrals to Hospital</span>
-                        <span class="stat-value">12</span>
-                    </div>
-                </div>
-                 <button class="btn btn-primary"><i class="fas fa-download"></i> Download Report</button>
-             </div>
-             <div class="bottom-nav">
-                <div class="nav-item active"><i class="fas fa-chart-bar"></i>Reports</div>
-                <div class="nav-item" onclick="showScreen('login-screen')"><i class="fas fa-sign-out-alt"></i>Logout</div>
-            </div>
+        <div class="nav-links">
+            <a href="#challenge">Challenge</a>
+            <a href="#register">Register</a>
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">Theme</button>
         </div>
     </div>
+</nav>
 
-    <script>
-        // JAVASCRIPT LOGIC
-        
-        // --- MOCK DATA WITH DETAILED VACCINATION INFO ---
-        const mockPatients = [
-             { 
-                id: 1, name: 'Sunita Devi', age: 28, gender: 'Female', 
-                details: 'ANC Patient, 7th Month', type: 'anc', 
-                pregnancyMonth: 7,
-                vaccinations: [
-                    { name: 'TT-1', status: 'Done', date: '2025-07-15' },
-                    { name: 'TT-2', status: 'Done', date: '2025-08-15' },
-                    { name: 'Iron Folic Acid', status: 'Done', date: 'Ongoing' },
-                    { name: 'TT-Booster', status: 'Due', date: '2026-01-20' }
-                ]
-            },
-            { 
-                id: 2, name: 'Rahul Kumar', age: 2, gender: 'Male', 
-                details: 'Polio Vaccine Due', type: 'vaccine',
-                vaccinations: [
-                    { name: 'BCG', status: 'Done', date: '2023-10-01' },
-                    { name: 'Hepatitis B - 0', status: 'Done', date: '2023-10-01' },
-                    { name: 'Polio - 1', status: 'Done', date: '2023-11-15' },
-                    { name: 'Penta - 1', status: 'Done', date: '2023-11-15' },
-                    { name: 'Polio - 2', status: 'Due', date: '2025-10-05' },
-                    { name: 'Penta - 2', status: 'Due', date: '2025-10-05' }
-                ]
-            },
-            { 
-                id: 3, name: 'Geeta Singh', age: 32, gender: 'Female', 
-                details: 'High-risk Pregnancy', type: 'anc',
-                pregnancyMonth: 5,
-                 vaccinations: [
-                    { name: 'TT-1', status: 'Done', date: '2025-09-01' },
-                    { name: 'TT-2', status: 'Due', date: '2025-10-01' }
-                ]
-            },
-            { 
-                id: 4, name: 'Aarav Sharma', age: 1, gender: 'Male', 
-                details: 'BCG Vaccine Done', type: 'vaccine',
-                vaccinations: [
-                    { name: 'BCG', status: 'Done', date: '2024-10-20' },
-                    { name: 'Polio - 0', status: 'Done', date: '2024-10-20' },
-                    { name: 'Measles-Rubella', status: 'Due', date: '2025-11-15' }
-                ]
-            },
-            { 
-                id: 5, name: 'Ramesh Lal', age: 65, gender: 'Male', 
-                details: 'BP checkup required', type: 'visits',
-                vaccinations: [
-                     { name: 'No vaccination schedule', status: 'N/A', date: '' }
-                ]
-            },
-        ];
-        
-        let currentScreen = 'login-screen';
-        let isSyncing = false; // Flag to prevent multiple syncs at once
-        
-        const translations = {
-            en: { loginTitle: "ASHA Sahayika", loginSubtitle: "Health Service, At Your Doorstep", loginButton: "Login" },
-            hi: { loginTitle: "आशा सहायिका", loginSubtitle: "स्वास्थ्य सेवा, आपके द्वार", loginButton: "लॉग इन करें" }
-        };
+<div class="ticker-bar">
+    <div class="ticker">
+        <span>🔥 STARTUP FORGE 1.0 - LAST DATE FOR IDEA SUBMISSION: 23 MARCH</span>
+        <span>HEAT ROUND: 26 MARCH</span>
+        <span>HAMMER ROUND: 27 MARCH</span>
+        <span>FORGE ROUND: 28 MARCH</span>
+        <span>🔥 STARTUP FORGE 1.0 - LAST DATE FOR IDEA SUBMISSION: 23 MARCH</span>
+        <span>HEAT ROUND: 26 MARCH</span>
+        <span>HAMMER ROUND: 27 MARCH</span>
+        <span>FORGE ROUND: 28 MARCH</span>
+    </div>
+</div>
 
-        function showScreen(screenId) {
-            const oldScreen = document.getElementById(currentScreen);
-            const newScreen = document.getElementById(screenId);
-            if(oldScreen && newScreen){
-                oldScreen.classList.add('slide-out');
-                oldScreen.classList.remove('active');
-                setTimeout(() => {
-                    newScreen.classList.remove('slide-out');
-                    newScreen.classList.add('active');
-                    oldScreen.classList.remove('slide-out');
-                    currentScreen = screenId;
-                    if(screenId === 'sync-screen') updateSyncStatusUI();
-                }, 300);
-            }
-        }
-        
-        function changeLanguage(lang, element) {
-            const content = translations[lang];
-            document.getElementById('login-title').innerText = content.loginTitle;
-            document.getElementById('login-subtitle').innerText = content.loginSubtitle;
-            document.getElementById('login-button').innerText = content.loginButton;
-            document.querySelectorAll('.language-selector button').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-        }
+<header>
+    <img src="1.jpeg" alt="Forge Logo" class="hero-logo">
+    <h1>STARTUP FORGE 1.0</h1>
+    <p class="subtitle">The Startup Arena for NextGen Founders</p>
+    <a href="#register" class="btn-register">REGISTER NOW</a>
+</header>
 
-        function handleLogin() {
-            const id = document.getElementById('login-id').value.toUpperCase();
-            if (id.startsWith('ASHA')) showScreen('asha-dashboard-screen');
-            else if (id.startsWith('PHC')) showScreen('phc-dashboard-screen');
-            else alert('Invalid ID. Use "ASHA123" or "PHC01".');
-        }
+<h2 id="challenge" class="section-title">THE CHALLENGE</h2>
 
-        function updateOnlineStatus() {
-            const statusDot = document.getElementById('status-dot');
-            const statusText = document.getElementById('status-text');
-            
-            if (navigator.onLine) {
-                statusDot.className = 'status-dot online';
-                statusText.textContent = 'Online';
-                // --- NEW: Trigger automatic sync when connection is restored ---
-                autoSyncData(); 
-            } else {
-                statusDot.className = 'status-dot offline';
-                statusText.textContent = 'Offline';
-            }
-        }
-        
-        window.addEventListener('online', updateOnlineStatus);
-        window.addEventListener('offline', updateOnlineStatus);
+<div class="container">
+    <div class="rounds-grid">
+        <div class="card">
+            <h3>🔥 HEAT ROUND</h3>
+            <p><strong>26 March:</strong> Idea Screening based on originality and feasibility.</p>
+        </div>
 
-        // --- REAL VOICE RECOGNITION LOGIC ---
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let recognition;
+        <div class="card">
+            <h3>🔨 HAMMER ROUND</h3>
+            <p><strong>27 March:</strong> Structured PPT Pitching + Q&A Session.</p>
+        </div>
 
-        if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.lang = 'hi-IN'; // Set to Hindi for better recognition in India
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-        }
+        <div class="card">
+            <h3>⚔️ FORGE ROUND</h3>
+            <p><strong>28 March:</strong> Real-time Business Challenge & Strategic Pivot.</p>
+        </div>
+    </div>
+</div>
 
-        function startVoiceRecognition(inputId) {
-            if (!SpeechRecognition) {
-                alert("Sorry, your browser does not support voice recognition.");
-                return;
-            }
+<div id="register">
+    <h2 class="section-title">SUBMIT YOUR IDEA</h2>
 
-            const inputField = document.getElementById(inputId);
-            const voiceButton = inputField.closest('.voice-input-group').querySelector('.voice-btn');
+    <div class="form-wrapper">
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLScqXxIQY2hXhCESrUm_Xa6oMqgiiTNyq3MsMwqWSseqja0hvQ/viewform"
+           target="_blank">
+            <img src="5.jpeg" alt="Register Now">
+        </a>
+    </div>
+</div>
 
-            recognition.onstart = () => {
-                voiceButton.classList.add('listening');
-                inputField.placeholder = 'Listening...';
-            };
+<div class="container">
+    <div class="sponsor-container">
+        <h2 class="section-title">PARTNERS</h2>
+        <div class="sponsor-grid">
+            <div class="sponsor-box">Partner</div>
+            <div class="sponsor-box">Sponsor</div>
+            <div class="sponsor-box">Community</div>
+            <div class="sponsor-box">Media</div>
+        </div>
+    </div>
+    </div>
 
-            recognition.onerror = (event) => {
-                alert(`Error occurred in recognition: ${event.error}`);
-                voiceButton.classList.remove('listening');
-                inputField.placeholder = '';
-            };
+<div class="container"><div class="section-divider"></div></div>
 
-            recognition.onend = () => {
-                voiceButton.classList.remove('listening');
-                inputField.placeholder = '';
-            };
-            
-            recognition.onresult = (event) => {
-                let transcript = event.results[0][0].transcript;
-                // Remove spaces for Aadhaar and Phone numbers
-                if(inputId === 'aadhaar' || inputId === 'phone') {
-                    transcript = transcript.replace(/\s/g, '');
+<footer>
+    MICROTEK GROUP OF INSTITUTIONS | JAUNPUR - VARANASI
+</footer>
+
+<div id="notice-bar" class="notice-bar" role="region" aria-label="Notification">
+    <div class="notice-text">Submissions close 23 March. Don’t miss your chance.</div>
+    <div class="notice-actions">
+        <a href="#register" class="notice-link">Register now</a>
+        <button class="notice-close" aria-label="Dismiss">×</button>
+    </div>
+    </div>
+
+<div id="notice-bar-2" class="notice-bar notice-bar-alt" role="region" aria-label="Notification">
+    <div class="notice-text">New speakers announced. View agenda for details.</div>
+    <div class="notice-actions">
+        <a href="#challenge" class="notice-link">View details</a>
+        <button class="notice-close" aria-label="Dismiss">×</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var bars = document.querySelectorAll('.notice-bar');
+        bars.forEach(function (bar) { bar.classList.add('show'); });
+        var closeBtns = document.querySelectorAll('.notice-close');
+        closeBtns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var bar = btn.closest('.notice-bar');
+                if (bar) {
+                    bar.classList.remove('show');
+                    bar.style.display = 'none';
                 }
-                inputField.value = transcript;
-            };
-
-            recognition.start();
-        }
-        
-        function getOfflinePatients() {
-            return JSON.parse(localStorage.getItem('offlinePatients') || '[]');
-        }
-
-        function savePatientOffline() {
-            const patient = {
-                id: Date.now(),
-                name: document.getElementById('name').value,
-                age: document.getElementById('age').value,
-                gender: document.getElementById('gender').value,
-                aadhaar: document.getElementById('aadhaar').value,
-                phone: document.getElementById('phone').value,
-                details: document.getElementById('symptoms').value,
-                type: 'new',
-                vaccinations: [] // New offline patients have no vaccine history yet
-            };
-
-            if (!patient.name || !patient.age || !patient.gender || !patient.aadhaar) {
-                alert('Please fill Name, Age, Gender, and Aadhaar Number.');
-                return;
-            }
-
-            const offlinePatients = getOfflinePatients();
-            offlinePatients.push(patient);
-            localStorage.setItem('offlinePatients', JSON.stringify(offlinePatients));
-
-            alert(`Patient "${patient.name}" saved offline successfully!`);
-            document.getElementById('patient-form').reset();
-            showScreen('asha-dashboard-screen');
-        }
-        
-        function updateSyncStatusUI() {
-            const offlinePatients = getOfflinePatients();
-            const statusText = document.getElementById('sync-status-text');
-            const syncButton = document.getElementById('sync-button');
-            
-            statusText.textContent = `You have ${offlinePatients.length} records to sync.`;
-            syncButton.disabled = offlinePatients.length === 0 || !navigator.onLine;
-            if(!navigator.onLine) statusText.textContent += " (Please connect to internet)";
-        }
-        
-        // --- NEW: AUTOMATIC BACKGROUND SYNC ---
-        function autoSyncData() {
-            const offlinePatients = getOfflinePatients();
-            if (isSyncing || !navigator.onLine || offlinePatients.length === 0) {
-                return; // Don't sync if already syncing, offline, or no data
-            }
-            
-            isSyncing = true;
-            const statusText = document.getElementById('status-text');
-            const originalStatus = statusText.textContent;
-            statusText.textContent = "Syncing...";
-
-            // Simulate network delay for sync
-            setTimeout(() => {
-                localStorage.removeItem('offlinePatients'); // Clear the data
-                statusText.textContent = originalStatus; // Restore status text
-                isSyncing = false;
-                console.log("Automatic background sync completed.");
-                // Optionally, update the UI on the sync page if it's currently open
-                if(currentScreen === 'sync-screen') {
-                    updateSyncStatusUI();
-                     document.getElementById('sync-icon').className = 'fas fa-check-circle sync-icon synced';
-                }
-            }, 3000); // 3-second sync simulation
-        }
-
-        function startSync() {
-            const offlinePatients = getOfflinePatients();
-            if (offlinePatients.length === 0 || !navigator.onLine) return;
-            
-            const syncIcon = document.getElementById('sync-icon');
-            const syncButton = document.getElementById('sync-button');
-            const progressBar = document.getElementById('sync-progress-bar');
-            const progress = document.getElementById('sync-progress');
-            const statusText = document.getElementById('sync-status-text');
-
-            syncIcon.className = 'fas fa-sync-alt sync-icon syncing';
-            syncButton.disabled = true;
-            statusText.textContent = `Syncing ${offlinePatients.length} records...`;
-            progressBar.style.display = 'block';
-            progress.style.width = '0%';
-            isSyncing = true;
-
-            let currentProgress = 0;
-            const interval = setInterval(() => {
-                currentProgress += 20;
-                progress.style.width = currentProgress + '%';
-                if (currentProgress >= 100) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        syncIcon.className = 'fas fa-check-circle sync-icon synced';
-                        statusText.textContent = `✔ ${offlinePatients.length} Records Synced Successfully!`;
-                        localStorage.removeItem('offlinePatients');
-                        progressBar.style.display = 'none';
-                        isSyncing = false;
-                    }, 500);
-                }
-            }, 400);
-        }
-
-        function showPatientList(filterType) {
-            const container = document.getElementById('patient-list-container');
-            const title = document.getElementById('patient-list-title');
-            container.innerHTML = ''; 
-
-            const offlinePatients = getOfflinePatients();
-            const allPatients = [...mockPatients, ...offlinePatients];
-            
-            let filteredPatients = allPatients;
-            if (filterType !== 'all') {
-                filteredPatients = allPatients.filter(p => p.type === filterType);
-                title.textContent = `${filterType.charAt(0).toUpperCase() + filterType.slice(1)} Patients`;
-            } else {
-                 title.textContent = "All Patients";
-            }
-            
-            if (filteredPatients.length === 0) {
-                 container.innerHTML = '<p style="text-align:center;color:grey;">No patients found in this category.</p>';
-                 showScreen('patient-list-screen');
-                 return;
-            }
-
-            filteredPatients.forEach(patient => {
-                const initial = patient.name.charAt(0).toUpperCase();
-                const genderInitial = patient.gender ? `(${patient.gender.charAt(0)})` : '';
-                const cardHTML = `
-                    <li class="patient-card" onclick="showPatientDetails(${patient.id})">
-                        <div class="patient-avatar">${initial}</div>
-                        <div class="patient-info">
-                            <p class="name">${patient.name} (${patient.age} ${genderInitial})</p>
-                            <p class="details">${patient.details}</p>
-                        </div>
-                        <div class="qr-code">
-                            <i class="fas fa-qrcode fa-2x"></i>
-                        </div>
-                    </li>
-                `;
-                container.innerHTML += cardHTML;
             });
-            showScreen('patient-list-screen');
-        }
-        
-        // --- NEW: SHOW DETAILED PATIENT VIEW ---
-        function showPatientDetails(patientId) {
-            const allPatients = [...mockPatients, ...getOfflinePatients()];
-            const patient = allPatients.find(p => p.id === patientId);
-
-            if (!patient) return;
-
-            // Populate header
-            document.getElementById('detail-patient-name').textContent = patient.name;
-            
-            // Populate basic info card
-            const basicDetailsContainer = document.getElementById('patient-basic-details');
-            let detailsHTML = `
-                <div class="detail-item"><span>Age</span><span>${patient.age}</span></div>
-                <div class="detail-item"><span>Gender</span><span>${patient.gender}</span></div>
-            `;
-            // Add pregnancy month only for ANC patients
-            if (patient.type === 'anc' && patient.pregnancyMonth) {
-                detailsHTML += `<div class="detail-item"><span>Pregnancy</span><span>${patient.pregnancyMonth} months</span></div>`;
-            }
-            if (patient.phone) {
-                 detailsHTML += `<div class="detail-item"><span>Phone</span><span>${patient.phone}</span></div>`;
-            }
-            basicDetailsContainer.innerHTML = detailsHTML;
-            
-            // Populate vaccine list
-            const vaccineContainer = document.getElementById('vaccine-list-container');
-            vaccineContainer.innerHTML = ''; // Clear previous list
-            
-            if (patient.vaccinations && patient.vaccinations.length > 0) {
-                 patient.vaccinations.forEach(vax => {
-                    const statusClass = vax.status.toLowerCase();
-                    const vaxItemHTML = `
-                        <li class="vaccine-item">
-                            <div>
-                                <p class="vaccine-name">${vax.name}</p>
-                                <p class="vaccine-date">${vax.date}</p>
-                            </div>
-                            <span class="vaccine-status ${statusClass}">${vax.status}</span>
-                        </li>
-                    `;
-                     vaccineContainer.innerHTML += vaxItemHTML;
-                });
-            } else {
-                vaccineContainer.innerHTML = '<p style="text-align:center;color:grey;padding:10px;">No vaccination data available.</p>';
-            }
-            
-            showScreen('patient-detail-screen');
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            updateOnlineStatus();
-            changeLanguage('en', document.querySelector('.language-selector button.active'));
         });
+        var savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') { document.documentElement.setAttribute('data-theme', 'light'); }
+        var toggle = document.getElementById('theme-toggle');
+        if (toggle) toggle.addEventListener('click', function () {
+            var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            if (isLight) {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.removeItem('theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    });
+</script>
 
-    </script>
 </body>
 </html>
